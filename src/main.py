@@ -177,25 +177,103 @@ def scan(
         # Full scan with OS detection
         python -m src.main scan -t 192.168.1.0/24 -s full --os-detection
     """
+    import json
+    from src.scanner import PortScanner, ScanType, TimingTemplate, PortPresets
+    from src.core.exceptions import PortScanError, InsufficientPrivilegesError
+    
     config: Config = ctx.obj["config"]
     logger = ctx.obj["logger"]
     quiet = ctx.obj.get("quiet", False)
     
-    logger.info(f"Starting scan of target: {target}")
+    # Map CLI options to ScanType enum
+    scan_type_map = {
+        "tcp": ScanType.TCP_CONNECT,
+        "syn": ScanType.TCP_SYN,
+        "udp": ScanType.UDP,
+        "full": ScanType.COMPREHENSIVE,
+    }
+    selected_scan_type = scan_type_map.get(scan_type, ScanType.TCP_CONNECT)
     
-    console.print(f"\n[bold cyan]Scan Configuration:[/bold cyan]")
-    console.print(f"  • Target: [bold]{target}[/bold]")
-    console.print(f"  • Ports: {ports or 'default'}")
-    console.print(f"  • Scan Type: {scan_type}")
-    console.print(f"  • Timing Template: T{timing}")
-    console.print(f"  • Service Detection: {'✓' if service_detection else '✗'}")
-    console.print(f"  • OS Detection: {'✓' if os_detection else '✗'}")
-    console.print(f"  • CVE Lookup: {'✓' if cve_lookup else '✗'}")
+    # Map timing to TimingTemplate
+    timing_template = TimingTemplate(timing)
     
-    console.print("\n[yellow]⚠️  Full port scanning will be implemented in Phase 1.3[/yellow]")
-    console.print("[dim]Use 'discover' command for host discovery (Phase 1.2)[/dim]")
+    # Determine ports to scan
+    port_spec = ports
+    if top_ports:
+        port_spec = f"--top-ports {top_ports}"
     
-    logger.info("Scan command executed (port scanning pending Phase 1.3)")
+    logger.info(f"Starting {scan_type} scan of target: {target}")
+    
+    # Print configuration
+    if not quiet:
+        console.print(f"\n[bold cyan]Scan Configuration:[/bold cyan]")
+        console.print(f"  • Target: [bold]{target}[/bold]")
+        console.print(f"  • Ports: {port_spec or 'top 100'}")
+        console.print(f"  • Scan Type: {scan_type}")
+        console.print(f"  • Timing Template: T{timing}")
+        console.print(f"  • Service Detection: {'✓' if service_detection else '✗'}")
+        console.print(f"  • OS Detection: {'✓' if os_detection else '✗'}")
+        console.print(f"  • CVE Lookup: {'✓' if cve_lookup else '✗'} (Phase 2)")
+        console.print()
+    
+    try:
+        # Initialize scanner
+        scanner = PortScanner()
+        
+        # Run scan
+        result = scanner.scan_ports(
+            target=target,
+            ports=port_spec,
+            scan_type=selected_scan_type,
+            timing=timing_template,
+            service_detection=service_detection,
+            os_detection=os_detection,
+            show_progress=not quiet
+        )
+        
+        # Display results
+        scanner.print_results(result)
+        
+        # Save to file if requested
+        if output:
+            output_path = Path(output)
+            
+            if format == "json" or str(output).endswith(".json"):
+                with open(output_path, "w", encoding="utf-8") as f:
+                    json.dump(result.to_dict(), f, indent=2)
+            else:
+                # Default to JSON for now, HTML/CSV in Phase 3
+                with open(output_path.with_suffix(".json"), "w", encoding="utf-8") as f:
+                    json.dump(result.to_dict(), f, indent=2)
+                output_path = output_path.with_suffix(".json")
+            
+            console.print(f"\n[green]✓[/green] Results saved to: {output_path}")
+            logger.info(f"Results saved to {output_path}")
+        
+        # Summary
+        if result.total_open_ports > 0:
+            console.print(f"\n[green]✓ Found {result.total_open_ports} open port(s) on {len(result.hosts_with_open_ports)} host(s)[/green]")
+        else:
+            console.print("\n[yellow]⚠️ No open ports found.[/yellow]")
+        
+        if cve_lookup:
+            console.print("[dim]CVE lookup will be available in Phase 2[/dim]")
+        
+    except InsufficientPrivilegesError as e:
+        console.print(f"\n[red]✗ Insufficient privileges:[/red] {e.message}")
+        console.print("[yellow]Tip: Try running as Administrator, or use -s tcp for unprivileged scan.[/yellow]")
+        logger.error(f"Insufficient privileges: {e}")
+        sys.exit(1)
+        
+    except PortScanError as e:
+        console.print(f"\n[red]✗ Scan failed:[/red] {e.message}")
+        logger.error(f"Scan failed: {e}")
+        sys.exit(1)
+        
+    except Exception as e:
+        console.print(f"\n[red]✗ Unexpected error:[/red] {e}")
+        logger.exception("Unexpected error during scan")
+        sys.exit(1)
 
 
 @cli.command()

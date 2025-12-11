@@ -13,9 +13,28 @@ from .network_scanner import (
     DiscoveryMethod
 )
 
+from .port_scanner import (
+    PortScanner,
+    PortInfo,
+    HostScanResult,
+    PortScanResult,
+    ScanType,
+    TimingTemplate,
+    PortPresets
+)
+
 __all__ = [
+    # Network Discovery
     "NetworkScanner",
     "DiscoveredHost",
     "ScanResult",
-    "DiscoveryMethod"
+    "DiscoveryMethod",
+    # Port Scanning
+    "PortScanner",
+    "PortInfo",
+    "HostScanResult",
+    "PortScanResult",
+    "ScanType",
+    "TimingTemplate",
+    "PortPresets"
 ]
