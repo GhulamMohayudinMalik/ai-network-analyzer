@@ -422,6 +422,157 @@ def discover(
 
 @cli.command()
 @click.option(
+    "--target", "-t",
+    required=True,
+    help="Target to scan (IP, hostname, or CIDR range)"
+)
+@click.option(
+    "--ports", "-p",
+    default=None,
+    help="Ports to scan (e.g., '22,80,443' or '1-1000')"
+)
+@click.option(
+    "--top-ports",
+    type=int,
+    default=None,
+    help="Scan top N most common ports"
+)
+@click.option(
+    "--os-detection/--no-os-detection", "-O",
+    default=False,
+    help="Enable OS detection (requires privileges)"
+)
+@click.option(
+    "--intensity", "-i",
+    type=click.IntRange(0, 9),
+    default=7,
+    help="Version detection intensity (0-9, higher = more accurate but slower)"
+)
+@click.option(
+    "--timing", "-T",
+    type=click.IntRange(0, 5),
+    default=3,
+    help="Timing template (0=paranoid, 5=insane)"
+)
+@click.option(
+    "--output", "-o",
+    type=click.Path(path_type=Path),
+    help="Output file for results (JSON)"
+)
+@click.pass_context
+def services(
+    ctx: click.Context,
+    target: str,
+    ports: Optional[str],
+    top_ports: Optional[int],
+    os_detection: bool,
+    intensity: int,
+    timing: int,
+    output: Optional[Path]
+):
+    """
+    Perform detailed service detection with CPE extraction.
+    
+    This command performs deep service fingerprinting to identify:
+    - Service names and versions
+    - CPE identifiers (for CVE lookup)
+    - SSL/TLS certificate information
+    - Operating system (optional)
+    
+    Examples:
+    
+        # Basic service detection
+        python -m src.main services -t 192.168.100.1
+        
+        # Scan specific ports with high intensity
+        python -m src.main services -t 192.168.100.1 -p 22,80,443 -i 9
+        
+        # Include OS detection (requires admin)
+        python -m src.main services -t 192.168.100.1 -O
+        
+        # Save results for CVE lookup
+        python -m src.main services -t 192.168.100.1 -o services.json
+    """
+    import json
+    from src.scanner import ServiceDetector
+    from src.core.exceptions import ServiceDetectionError, InsufficientPrivilegesError
+    
+    config: Config = ctx.obj["config"]
+    logger = ctx.obj["logger"]
+    quiet = ctx.obj.get("quiet", False)
+    
+    # Determine ports to scan
+    port_spec = ports
+    if top_ports:
+        port_spec = f"--top-ports {top_ports}"
+    
+    logger.info(f"Starting service detection on {target}")
+    
+    # Print configuration
+    if not quiet:
+        console.print(f"\n[bold cyan]Service Detection Configuration:[/bold cyan]")
+        console.print(f"  • Target: [bold]{target}[/bold]")
+        console.print(f"  • Ports: {port_spec or 'top 100'}")
+        console.print(f"  • Version Intensity: {intensity}")
+        console.print(f"  • Timing: T{timing}")
+        console.print(f"  • OS Detection: {'✓' if os_detection else '✗'}")
+        console.print()
+    
+    try:
+        # Initialize detector
+        detector = ServiceDetector()
+        
+        # Run detection
+        results = detector.detect_services(
+            target=target,
+            ports=port_spec,
+            os_detection=os_detection,
+            intensity=intensity,
+            timing=timing,
+            show_progress=not quiet
+        )
+        
+        # Display results
+        detector.print_results(results)
+        
+        # Save to file if requested
+        if output:
+            output_path = Path(output)
+            with open(output_path, "w", encoding="utf-8") as f:
+                json.dump([h.to_dict() for h in results], f, indent=2)
+            console.print(f"\n[green]✓[/green] Results saved to: {output_path}")
+            logger.info(f"Results saved to {output_path}")
+        
+        # Summary
+        total_services = sum(len(h.open_services) for h in results)
+        total_cpes = sum(len(h.all_cpes) for h in results)
+        
+        if total_services > 0:
+            console.print(f"\n[green]✓ Detected {total_services} service(s) with {total_cpes} CPE(s)[/green]")
+            if total_cpes > 0:
+                console.print("[dim]CPEs are ready for CVE lookup in Phase 2[/dim]")
+        else:
+            console.print("\n[yellow]⚠️ No services detected.[/yellow]")
+        
+    except InsufficientPrivilegesError as e:
+        console.print(f"\n[red]✗ Insufficient privileges:[/red] {e.message}")
+        console.print("[yellow]Tip: Run as Administrator for OS detection.[/yellow]")
+        logger.error(f"Insufficient privileges: {e}")
+        sys.exit(1)
+        
+    except ServiceDetectionError as e:
+        console.print(f"\n[red]✗ Detection failed:[/red] {e.message}")
+        logger.error(f"Detection failed: {e}")
+        sys.exit(1)
+        
+    except Exception as e:
+        console.print(f"\n[red]✗ Unexpected error:[/red] {e}")
+        logger.exception("Unexpected error during service detection")
+        sys.exit(1)
+
+
+@cli.command()
+@click.option(
     "--input", "-i",
     type=click.Path(exists=True, path_type=Path),
     required=True,

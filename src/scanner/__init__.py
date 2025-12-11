@@ -23,6 +23,15 @@ from .port_scanner import (
     PortPresets
 )
 
+from .service_detector import (
+    ServiceDetector,
+    ServiceInfo,
+    HostServiceInfo,
+    CPEInfo,
+    SSLInfo,
+    OSInfo
+)
+
 __all__ = [
     # Network Discovery
     "NetworkScanner",
@@ -36,5 +45,12 @@ __all__ = [
     "PortScanResult",
     "ScanType",
     "TimingTemplate",
-    "PortPresets"
+    "PortPresets",
+    # Service Detection
+    "ServiceDetector",
+    "ServiceInfo",
+    "HostServiceInfo",
+    "CPEInfo",
+    "SSLInfo",
+    "OSInfo"
 ]
