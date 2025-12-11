@@ -1,0 +1,190 @@
+{
+  "target": "192.168.1.0/28",
+  "hosts_discovered": [
+    {
+      "ip_address": "192.168.1.0",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.952659"
+    },
+    {
+      "ip_address": "192.168.1.1",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.952659"
+    },
+    {
+      "ip_address": "192.168.1.10",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.11",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.12",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.13",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.14",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.15",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.2",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.3",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.4",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.5",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.6",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.7",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.8",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    },
+    {
+      "ip_address": "192.168.1.9",
+      "hostname": null,
+      "mac_address": null,
+      "vendor": null,
+      "status": "down",
+      "discovery_method": "no-response",
+      "response_time": null,
+      "os_guess": null,
+      "discovered_at": "2025-12-11T22:52:14.953659"
+    }
+  ],
+  "hosts_up": 0,
+  "hosts_down": 16,
+  "hosts_total": 16,
+  "scan_time": 29.14,
+  "scan_method": "AUTO",
+  "scan_arguments": "-sn -PE -PS22,80,443 -PA80,443 -T3 -R -v",
+  "started_at": "2025-12-11T22:51:45.773254",
+  "completed_at": "2025-12-11T22:52:14.952659",
+  "errors": []
+}
